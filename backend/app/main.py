@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.connection import engine, Base
 
@@ -9,7 +10,6 @@ from app.models.resume import Resume
 
 from app.routes.job_routes import router as job_router
 from app.routes.resume_routes import router as resume_router
-from fastapi.middleware.cors import CORSMiddleware
 
 
 # ==========================================
@@ -22,7 +22,6 @@ except Exception as e:
     print(f"Database initialization warning (will connect on requests): {e}")
 
 
-
 # ==========================================
 # FASTAPI APPLICATION
 # ==========================================
@@ -32,16 +31,24 @@ app = FastAPI(
     description="AI-powered Resume Matching and Candidate Ranking Platform",
     version="1.0.0"
 )
+
+
+# ==========================================
+# CORS CONFIGURATION
+# ==========================================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "https://ai-resume-parserfrontend-fz1fbhtqm-alpha-c9ea.vercel.app/"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # ==========================================
 # REGISTER ROUTES
@@ -67,7 +74,6 @@ def custom_openapi():
         routes=app.routes
     )
 
-    # Convert file upload schemas to Swagger-compatible format
     def update_file_schema(schema):
 
         if isinstance(schema, dict):
